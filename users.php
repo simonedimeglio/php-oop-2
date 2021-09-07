@@ -10,7 +10,6 @@ class User {
     public $creditCardNumber; // Number
     public $isCreditCardExpired = false; // Boolean
     public $isPremium = false; // Boolean
-
 }
 
 class PremiumUser extends User {

@@ -17,9 +17,9 @@ class EShop {
 
     public $name; // String
     public $url; // String
-    public $isOnline = true; // Boolean
-    public $products = []; // Array
-    public $users = []; // Array
+    private $isOnline = true; // Boolean
+    private $products = []; // Array
+    private $users = []; // Array
 
     
     // CONSTRUCT - assegno nome e url all'eShop alla sua costruzione
@@ -49,12 +49,22 @@ class EShop {
         return $this->creditCardNumber;
     }
 
-    public function buyAProduct(Product $productName) {
+    public function buyAProduct(Product $productName, User $userName) {
 
         // trovo la key via array_search
         $keyProductToRemove = array_search($productName, $this->products);
         // tolgo dall'array via unset
         unset($this->products[$keyProductToRemove]);
+
+        // eccezione per acquisto di prodotti non presenti a catalogo eShop
+        if($keyProductToRemove === false) {
+            throw new Exception("Il prodotto non è presente in eShop");
+        }
+
+        if($userName->isCreditCardExpired === true) {
+            throw new Exception("ERRORE: CARTA DI CREDITO SCADUTA");
+        }
+        
 
     }
 
@@ -162,19 +172,25 @@ $firstPremiumUser->insertCreditCard = 6554879918113826;
 var_dump($eShop->getUsers()); // stampa
 
 // STEP 7 - l'utente normale acquista un prodotto 
-$eShop->buyAProduct($thirdTechProduct);
+$eShop->buyAProduct($thirdTechProduct, $firstUser);
 echo("<br><hr><br>Lista dei prodotti dopo l'acquisto dell'Utente (Standard) :<br>");
 var_dump($eShop->getProducts()); // stampa
 
 // STEP 8 - l'utente premium acquista un prodotto 
 // applico lo sconto del 50% all'acquisto del prodotto da parte dell'utente Premium
-echo("<br><hr><br>Prodotto con prezzo aggiornato per utente premium :<br>");
+echo("<br><hr><br>Prodotto con prezzo aggiornato (Acquisto per Utente Premium) :<br>");
 $thirdTechProduct->price = ($thirdTechProduct->price)/2;
 var_dump($thirdTechProduct);
 // l'utente premium esegue l'acquisto
-$eShop->buyAProduct($firstTechProduct);
+$eShop->buyAProduct($firstTechProduct, $firstPremiumUser);
 echo("<br><hr><br>Lista dei prodotti dopo l'acquisto dell'Utente (premium) :<br>");
 var_dump($eShop->getProducts()); // stampa
 
-
+// BONUS - eccezione con carta di credito scaduta
+echo("<br><hr><br>Bonus: all'utente standard scade la carta di credito<br>");
+$firstUser->isCreditCardExpired = true;
+var_dump($firstUser);
+echo("<br>L'utente in questione prova ad effettuare un acquisto<br>");
+$eShop->buyAProduct($secondTechProduct, $firstUser);
+var_dump($eShop->getProducts()); // stampa
 
